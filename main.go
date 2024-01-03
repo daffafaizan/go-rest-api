@@ -22,7 +22,7 @@ var books []Book = []Book{
 }
 
 func bookById(id string) (*Book, error) {
-	errorMsg := fmt.Sprintln("No books by the id", id)
+	errorMsg := fmt.Sprint("No books by the id ", id)
 
 	for i, b := range books {
 		if b.ID == id {
@@ -38,9 +38,9 @@ func getBooks(c *gin.Context) {
 
 func getBooksById(c *gin.Context) {
 	id := c.Param("id")
-	book, error := bookById(id)
-
-	if error != nil {
+	book, err := bookById(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Book not found!"})
 		return
 	}
 
