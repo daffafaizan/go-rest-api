@@ -1,10 +1,11 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	//"errors"
 )
 
 type Book struct {
@@ -20,8 +21,30 @@ var books []Book = []Book{
 	{ID: "3", Title: "War and Peace", Author: "Leo Tolstoy", Quantity: 6},
 }
 
+func bookById(id string) (*Book, error) {
+	errorMsg := fmt.Sprintln("No books by the id", id)
+
+	for i, b := range books {
+		if b.ID == id {
+			return &books[i], nil
+		}
+	}
+	return nil, errors.New(errorMsg)
+}
+
 func getBooks(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, books)
+}
+
+func getBooksById(c *gin.Context) {
+	id := c.Param("id")
+	book, error := bookById(id)
+
+	if error != nil {
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, book)
 }
 
 func createBooks(c *gin.Context) {
@@ -38,6 +61,7 @@ func createBooks(c *gin.Context) {
 func main() {
 	router := gin.Default()
 	router.GET("/books", getBooks)
+	router.GET("/books/:id", getBooksById)
 	router.POST("/books", createBooks)
 	router.Run("localhost:8080")
 }
